@@ -1,0 +1,115 @@
+\section{Giải quyết bài toán monorepo}
+
+\subsection{Vấn đề khi áp dụng CI cho monorepo}
+Trong monorepo, nếu mỗi thay đổi đều build/test toàn bộ hệ thống thì thời gian chạy CI tăng mạnh, tiêu tốn tài nguyên và làm chậm quá trình review. Điều này gây lãng phí khi PR chỉ sửa một phần nhỏ nhưng vẫn kích hoạt toàn bộ pipeline.
+
+\subsection{Cơ chế phát hiện service thay đổi}
+Nhóm sử dụng path filtering trong trigger để nhận biết thư mục nào thay đổi. Khi commit chỉ chạm vào thư mục dịch vụ, workflow tương ứng mới được kích hoạt; thay đổi ở file chung có thể kích hoạt nhiều workflow liên quan.
+
+\subsection{Cơ chế chỉ chạy pipeline cho service liên quan}
+Mỗi dịch vụ có workflow riêng với điều kiện đường dẫn, vì vậy chỉ pipeline của dịch vụ bị ảnh hưởng mới chạy. Nếu thay đổi ở thư mục dùng chung (action, workflow, cấu hình build) thì nhiều workflow được chạy để đảm bảo an toàn.
+
+\begin{figure}[H]
+	\centering
+	\fbox{\parbox{0.9\linewidth}{\centering Minh chứng danh sách workflow được kích hoạt theo từng thay đổi.}}
+	\caption{Minh chứng cơ chế chỉ chạy pipeline cho dịch vụ liên quan.}
+\end{figure}
+
+\subsection{Trường hợp thay đổi thư mục dùng chung}
+Khi thay đổi liên quan đến action dùng chung, script build, cấu hình Docker hoặc workflow template, nhóm cho phép nhiều workflow chạy song song. Đây là trade-off để ưu tiên an toàn, tránh bỏ sót ảnh hưởng dây chuyền giữa các dịch vụ.
+
+\subsection{Đánh giá hiệu quả tối ưu của path filtering}
+Path filtering giúp giảm số job không cần thiết, rút ngắn thời gian phản hồi trên PR và giúp reviewer tập trung đúng phạm vi dịch vụ bị ảnh hưởng. Nhờ đó quy trình review nhanh hơn và ít nhiễu hơn.
+
+\section{Triển khai kiểm thử và báo cáo độ phủ}
+
+\subsection{Chiến lược kiểm thử}
+Nhóm tập trung vào unit test để kiểm chứng logic nghiệp vụ và các nhánh xử lý lỗi. Backend dùng JUnit (qua Maven) và frontend dùng Jest. Test được chạy trong job \texttt{run-unit-test} để đảm bảo tách biệt với bước build nhanh, đồng thời kết quả được tổng hợp qua report và artifact.
+
+\subsection{Xuất test report}
+Backend xuất JUnit XML từ surefire, frontend xuất JUnit qua jest-junit. Job \texttt{run-unit-test} dùng \texttt{dorny/test-reporter} để hiển thị kết quả trực tiếp trên GitHub Actions, đồng thời upload artifact để reviewer có thể tải về kiểm tra khi cần.
+
+\subsection{Đo độ phủ mã nguồn}
+Backend dùng JaCoCo để sinh \texttt{jacoco.xml} và báo cáo HTML; frontend dùng Jest để sinh \texttt{coverage-summary.json} và \texttt{lcov.info}. SonarCloud đọc dữ liệu coverage từ JaCoCo hoặc lcov để tổng hợp chỉ số chất lượng.
+
+\subsection{Thiết lập quality gate coverage 70\%}
+Quality gate được đặt ở mức tối thiểu 70\% line coverage. Pipeline sẽ fail nếu coverage nhỏ hơn hoặc bằng ngưỡng này. Với backend, script đọc \texttt{jacoco.xml}; với frontend, script đọc \texttt{coverage-summary.json}. 
+
+\begin{figure}[H]
+	\centering
+	\fbox{\parbox{0.9\linewidth}{\centering Minh chứng coverage gate fail/pass trên GitHub Actions.}}
+	\caption{Minh chứng quality gate coverage 70\%.}
+\end{figure}
+
+\subsection{Chiến lược bổ sung unit test để tăng coverage}
+Nhóm ưu tiên bổ sung test cho các luồng nghiệp vụ cốt lõi, nhánh lỗi và validation. Cách tiếp cận này giúp tăng coverage một cách bền vững, đồng thời giảm rủi ro regressions khi code thay đổi.
+
+\begin{figure}[H]
+	\centering
+	\fbox{\parbox{0.9\linewidth}{\centering Minh chứng báo cáo test/coverage trên pull request.}}
+	\caption{Minh chứng xuất test report và coverage trong CI.}
+\end{figure}
+
+
+
+--------
+
+\section{Đánh giá kết quả}
+
+\subsection{Đối chiếu với yêu cầu đề bài}
+Nhóm đã triển khai đầy đủ quy trình làm việc dựa trên pull request, nhánh bảo vệ và GitHub Actions. Các yêu cầu chính được đối chiếu như sau:
+
+\begin{itemize}
+	\item Mã nguồn được tổ chức theo monorepo, mỗi thay đổi chỉ kích hoạt workflow liên quan nhờ path filtering.
+	\item Pull request hiển thị trạng thái kiểm tra tự động, giúp reviewer theo dõi kết quả ngay trên giao diện GitHub.
+	\item Pipeline có đủ ba job \texttt{test}, \texttt{run-unit-test} và \texttt{build} để tách bạch kiểm tra nhanh, kiểm thử đầy đủ và đóng gói.
+	\item Unit test và coverage được kiểm soát bằng JaCoCo hoặc coverage tương ứng phía frontend, có quality gate tối thiểu 70\%.
+	\item Công cụ quét bảo mật như Gitleaks, Snyk và Trivy được tích hợp ở các bước phù hợp để kiểm soát secret và lỗ hổng.
+	\item Artifact, test report và báo cáo scan được xuất ra để phục vụ việc review và truy vết khi cần.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\fbox{\parbox{0.9\linewidth}{\centering Minh chứng branch protection và required checks trên pull request.}}
+	\caption{Minh chứng trạng thái kiểm tra trên pull request.}
+\end{figure}
+
+\subsection{Các kết quả đạt được}
+Nhóm đã đạt được các kết quả chính gồm: tự động hóa quy trình kiểm tra khi có pull request, giới hạn phạm vi chạy theo thay đổi thực tế, xuất được test report và coverage, đồng thời tích hợp quét bảo mật và build image. Điểm tốt nhất của giải pháp là pipeline phản hồi tương đối đúng phạm vi thay đổi và có cấu trúc thống nhất giữa các workflow. Một số phần vẫn ở mức nền tảng, như coverage của frontend còn đơn giản hơn backend và một số kiểm tra bảo mật vẫn theo hướng cảnh báo thay vì chặn cứng toàn bộ pipeline.
+
+\subsection{Ưu điểm của giải pháp}
+Giải pháp hiện tại có ba ưu điểm nổi bật. Thứ nhất, nó tự động hóa gần như toàn bộ vòng kiểm tra chất lượng trước khi merge, giảm đáng kể thao tác thủ công. Thứ hai, path filtering giúp hạn chế build thừa nên tiết kiệm thời gian và tài nguyên CI. Thứ ba, việc gắn report, coverage, scan bảo mật và build image vào cùng một luồng làm cho reviewer có đủ thông tin để quyết định nhanh và chính xác hơn.
+
+\subsection{Hạn chế còn tồn tại}
+Hệ thống vẫn còn một số hạn chế. Thời gian chạy CI có thể dài nếu thay đổi chạm vào nhiều workflow hoặc nếu dependency cache chưa tối ưu. Coverage của một số phần logic còn thấp, đặc biệt ở phía giao diện. Ngoài ra, pipeline hiện tại mới dừng ở CI, chưa triển khai CD tự động, nên sau khi build xong vẫn cần thêm bước deploy thủ công hoặc theo quy trình riêng.
+
+\section{Khó khăn và hướng xử lý}
+
+\subsection{Các vấn đề gặp phải trong quá trình triển khai}
+Trong quá trình triển khai, nhóm gặp một số vấn đề thực tế như path filtering chưa chính xác ở giai đoạn đầu, workflow bị chạy thừa khi thay đổi file dùng chung, khác biệt toolchain giữa backend và frontend, cache dependency chưa ổn định, coverage thấp ở một số nhánh logic và một số cảnh báo từ công cụ scan bảo mật. Ngoài ra, việc build image và resolve dependency đôi khi bị lỗi do xung đột phiên bản hoặc môi trường khác nhau giữa các job.
+
+\subsection{Cách nhóm khắc phục}
+Nhóm xử lý các vấn đề theo hướng tách rõ nguyên nhân và phạm vi ảnh hưởng. Với path filtering, nhóm rà soát lại trigger và chỉ giữ những đường dẫn thực sự cần thiết. Với cache và dependency, nhóm chuẩn hóa bước setup môi trường, tách build nhanh và build đầy đủ, đồng thời dùng artifact để giữ kết quả cần thiết. Với coverage thấp, nhóm bổ sung test vào các nhánh logic quan trọng thay vì viết test dàn trải. Với scan bảo mật, nhóm phân biệt cảnh báo và lỗi chặn pipeline để tránh làm gián đoạn những trường hợp không ảnh hưởng trực tiếp tới chất lượng bản build.
+
+\begin{figure}[H]
+	\centering
+	\fbox{\parbox{0.9\linewidth}{\centering Minh chứng một lỗi pipeline và cách sửa sau đó.}}
+	\caption{Minh chứng quá trình khắc phục lỗi CI.}
+\end{figure}
+
+\subsection{Bài học rút ra}
+Từ quá trình triển khai, nhóm rút ra hai nhóm bài học. Về kỹ thuật, cần chuẩn hóa sớm cấu trúc workflow, quy ước tên file, biến môi trường và chiến lược cache để tránh sửa đi sửa lại nhiều lần. Về tổ chức, cần thống nhất ngay từ đầu tiêu chí pass/fail của pipeline, cách xử lý cảnh báo và cách đặt chất lượng tối thiểu để cả nhóm cùng làm việc theo một chuẩn chung.
+
+\section{Kết luận và hướng phát triển}
+
+\subsection{Kết luận}
+Đồ án đã xây dựng được một quy trình CI tương đối hoàn chỉnh cho hệ thống YAS bằng GitHub Actions. Pipeline hiện tại bao phủ các bước quan trọng như kiểm tra nhanh, unit test, coverage gate, quét bảo mật và build image, đồng thời tận dụng path filtering để tối ưu thời gian chạy trong môi trường monorepo. Kết quả đạt được chứng minh rằng quy trình CI không chỉ giúp tự động hóa việc kiểm tra mã nguồn mà còn hỗ trợ review pull request rõ ràng, nhất quán và dễ mở rộng cho các giai đoạn tiếp theo.
+
+\subsection{Hướng phát triển trong các đồ án tiếp theo}
+Trong đồ án tiếp theo, nhóm định hướng mở rộng từ CI sang CD để tự động triển khai ứng dụng sau khi build thành công. Hướng phát triển hợp lý là đóng gói bằng Docker, triển khai trên Kubernetes, và tổ chức phát hành theo môi trường để có thể kiểm soát phiên bản tốt hơn. Bên cạnh đó, nhóm cũng có thể hoàn thiện observability bằng Prometheus, Grafana, Loki và Tempo, chuẩn hóa lại template workflow để tái sử dụng cho nhiều dịch vụ hơn, đồng thời mở rộng unit test và coverage cho toàn bộ hệ thống.
+
+\begin{figure}[H]
+	\centering
+	\fbox{\parbox{0.9\linewidth}{\centering Minh họa định hướng CD với Docker và Kubernetes cho đồ án tiếp theo.}}
+	\caption{Hướng phát triển từ CI sang CD.}
+\end{figure}
