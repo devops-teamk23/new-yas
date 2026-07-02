@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import org.junit.jupiter.api.BeforeEach;
 import tools.jackson.databind.ObjectMapper;
 import com.yas.commonlibrary.kafka.cdc.message.Product;
 import com.yas.commonlibrary.kafka.cdc.message.ProductCdcMessage;
@@ -55,6 +56,17 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductMsgKey, Produ
 
     public ProductCdcConsumerTest() {
         super(ProductMsgKey.class, ProductCdcMessage.class, "dbproduct.public.product");
+    }
+
+    @Autowired
+    private org.springframework.data.elasticsearch.core.ElasticsearchOperations elasticsearchOperations;
+
+    @BeforeEach
+    public void setup() {
+        if (!elasticsearchOperations.indexOps(com.yas.search.model.Product.class).exists()) {
+            elasticsearchOperations.indexOps(com.yas.search.model.Product.class).create();
+            elasticsearchOperations.indexOps(com.yas.search.model.Product.class).putMapping(elasticsearchOperations.indexOps(com.yas.search.model.Product.class).createMapping());
+        }
     }
 
     @AfterEach

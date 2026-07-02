@@ -3,6 +3,7 @@ package com.yas.sampledata.config;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +29,7 @@ public class DataSourceConfig {
 
     @Bean(name = "productDataSource")
     @Primary
+    @ConfigurationProperties("spring.datasource.hikari")
     public DataSource productDataSource() {
         return DataSourceBuilder.create()
             .driverClassName(driverClassName)
@@ -38,6 +40,7 @@ public class DataSourceConfig {
     }
 
     @Bean(name = "mediaDataSource")
+    @ConfigurationProperties("spring.datasource.hikari")
     public DataSource mediaDataSource() {
         return DataSourceBuilder.create()
             .driverClassName(driverClassName)
