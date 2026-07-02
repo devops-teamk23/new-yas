@@ -120,9 +120,11 @@ public class ProductService {
     private void extractedRange(Number min, Number max, BoolQuery.Builder bool) {
         if (min != null || max != null) {
             bool.must(m -> m.range(r -> r
-                    .field(ProductField.PRICE)
-                    .gte(min != null ? co.elastic.clients.json.JsonData.of(min.doubleValue()) : null)
-                    .lte(max != null ? co.elastic.clients.json.JsonData.of(max.doubleValue()) : null)
+                    .number(n -> n
+                        .field(ProductField.PRICE)
+                        .gte(min != null ? min.doubleValue() : null)
+                        .lte(max != null ? max.doubleValue() : null)
+                    )
             ));
         }
     }
