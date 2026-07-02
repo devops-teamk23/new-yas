@@ -2,7 +2,7 @@ name: gitops-auto-deploy
 
 on:
   push:
-    branches: ["disable"]
+    branches: ["main"]
     tags: ["v*.*.*"]
 
 jobs:
