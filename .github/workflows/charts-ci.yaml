@@ -1,25 +1,11 @@
 ﻿name: release charts ci
 
 on:
-  push:
-    branches: ['**']
-    paths:
-      - "pom.xml"
-      - ".github/workflows/actions/action.yaml"
-      - "k8s/charts/**"
-      - ".github/workflows/charts-ci.yaml"
-      - ".github/workflows/gitleak/action.yaml"
-      - "gitleaks.toml"
-  pull_request:
-    branches: ['**']
-    paths:
-      - "pom.xml"
-      - ".github/workflows/actions/action.yaml"
-      - "k8s/charts/**"
-      - ".github/workflows/charts-ci.yaml"
-      - ".github/workflows/gitleak/action.yaml"
-      - "gitleaks.toml"
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
 
 jobs:
   build:
@@ -35,3 +21,4 @@ jobs:
         run: |
           echo "Charts do not require a build step."
           echo "Build job completed."
+

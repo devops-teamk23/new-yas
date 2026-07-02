@@ -1,25 +1,11 @@
 ﻿name: customer service ci
 
 on:
-  push:
-    branches: ['**']
-    paths:
-      - "customer/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/gitleak/action.yaml"
-      - ".github/workflows/customer-ci.yaml"
-      - "gitleaks.toml"
-      - "pom.xml"
-  pull_request:
-    branches: ['**']
-    paths:
-      - "customer/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/gitleak/action.yaml"
-      - ".github/workflows/customer-ci.yaml"
-      - "gitleaks.toml"
-      - "pom.xml"
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
 
 jobs:
   build:
@@ -47,22 +33,15 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASS }}
-
-      - name: Extract Tag
-        run: |
-          if [ "${{ github.ref }}" == "refs/heads/main" ] || [ "${{ github.ref }}" == "refs/heads/master" ]; then
-            echo "TAG=latest" >> $GITHUB_ENV
-          else
-            echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
-          fi
       - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
           context: ./customer
           push: false
           load: true
-          tags: docker.io/${{ secrets.DOCKER_USERNAME }}/yas-customer:${{ env.TAG }}
+          tags: docker.io/${{ secrets.DOCKER_USERNAME }}/yas-customer:${{ inputs.tag }}
       - name: Push Docker image
         run: |
-          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/yas-customer:${{ env.TAG }}
+          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/yas-customer:${{ inputs.tag }}
+
 

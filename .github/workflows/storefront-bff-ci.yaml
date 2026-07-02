@@ -1,23 +1,11 @@
 ﻿name: storefront-bff service ci
 
 on:
-  push:
-    branches: ['**']
-    paths:
-      - "storefront-bff/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/gitleak/action.yaml"
-      - ".github/workflows/storefront-bff-ci.yaml"
-      - "pom.xml"
-  pull_request:
-    branches: ['**']
-    paths:
-      - "storefront-bff/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/gitleak/action.yaml"
-      - ".github/workflows/storefront-bff-ci.yaml"
-      - "pom.xml"
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
 
 jobs:
   build:
@@ -41,22 +29,15 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASS }}
-
-      - name: Extract Tag
-        run: |
-          if [ "${{ github.ref }}" == "refs/heads/main" ] || [ "${{ github.ref }}" == "refs/heads/master" ]; then
-            echo "TAG=latest" >> $GITHUB_ENV
-          else
-            echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
-          fi
       - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
           context: ./storefront-bff
           push: false
           load: true
-          tags: docker.io/${{ secrets.DOCKER_USERNAME }}/yas-storefront-bff:${{ env.TAG }}
+          tags: docker.io/${{ secrets.DOCKER_USERNAME }}/yas-storefront-bff:${{ inputs.tag }}
       - name: Push Docker image
         run: |
-          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/yas-storefront-bff:${{ env.TAG }}
+          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/yas-storefront-bff:${{ inputs.tag }}
+
 

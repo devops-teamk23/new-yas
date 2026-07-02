@@ -1,0 +1,287 @@
+name: Master CI/CD Pipeline
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      is_tag: ${{ startsWith(github.ref, 'refs/tags/') }}
+      tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || github.sha }}
+      backoffice_bff: ${{ steps.filter.outputs.backoffice_bff }}
+      backoffice: ${{ steps.filter.outputs.backoffice }}
+      cart: ${{ steps.filter.outputs.cart }}
+      charts: ${{ steps.filter.outputs.charts }}
+      customer: ${{ steps.filter.outputs.customer }}
+      inventory: ${{ steps.filter.outputs.inventory }}
+      location: ${{ steps.filter.outputs.location }}
+      media: ${{ steps.filter.outputs.media }}
+      order: ${{ steps.filter.outputs.order }}
+      payment: ${{ steps.filter.outputs.payment }}
+      payment_paypal: ${{ steps.filter.outputs.payment_paypal }}
+      product: ${{ steps.filter.outputs.product }}
+      promotion: ${{ steps.filter.outputs.promotion }}
+      rating: ${{ steps.filter.outputs.rating }}
+      recommendation: ${{ steps.filter.outputs.recommendation }}
+      sampledata: ${{ steps.filter.outputs.sampledata }}
+      search: ${{ steps.filter.outputs.search }}
+      storefront_bff: ${{ steps.filter.outputs.storefront_bff }}
+      storefront: ${{ steps.filter.outputs.storefront }}
+      tax: ${{ steps.filter.outputs.tax }}
+      webhook: ${{ steps.filter.outputs.webhook }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backoffice_bff: ['backoffice-bff/**']
+            backoffice: ['backoffice/**']
+            cart: ['cart/**']
+            charts: ['charts/**']
+            customer: ['customer/**']
+            inventory: ['inventory/**']
+            location: ['location/**']
+            media: ['media/**']
+            order: ['order/**']
+            payment: ['payment/**']
+            payment_paypal: ['payment-paypal/**']
+            product: ['product/**']
+            promotion: ['promotion/**']
+            rating: ['rating/**']
+            recommendation: ['recommendation/**']
+            sampledata: ['sampledata/**']
+            search: ['search/**']
+            storefront_bff: ['storefront-bff/**']
+            storefront: ['storefront/**']
+            tax: ['tax/**']
+            webhook: ['webhook/**']
+
+  build-backoffice-bff:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backoffice_bff == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/backoffice-bff-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-backoffice:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backoffice == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/backoffice-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-cart:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.cart == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/cart-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-charts:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.charts == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/charts-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-customer:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.customer == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/customer-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-inventory:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.inventory == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/inventory-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-location:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.location == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/location-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-media:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.media == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/media-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-order:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.order == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/order-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-payment:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.payment == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/payment-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-payment-paypal:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.payment_paypal == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/payment-paypal-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-product:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.product == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/product-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-promotion:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.promotion == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/promotion-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-rating:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.rating == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/rating-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-recommendation:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.recommendation == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/recommendation-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-sampledata:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.sampledata == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/sampledata-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-search:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.search == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/search-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-storefront-bff:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.storefront_bff == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/storefront-bff-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-storefront:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.storefront == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/storefront-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-tax:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.tax == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/tax-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  build-webhook:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.webhook == 'true' || needs.detect-changes.outputs.is_tag == 'true'
+    uses: ./.github/workflows/webhook-ci.yaml
+    with:
+      tag: ${{ needs.detect-changes.outputs.tag_name }}
+    secrets: inherit
+
+  update-gitops:
+    needs: [detect-changes, build-backoffice-bff, build-backoffice, build-cart, build-charts, build-customer, build-inventory, build-location, build-media, build-order, build-payment, build-payment-paypal, build-product, build-promotion, build-rating, build-recommendation, build-sampledata, build-search, build-storefront-bff, build-storefront, build-tax, build-webhook]
+    if: always() && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitOps Repo
+        uses: actions/checkout@v4
+        with:
+          repository: devops-teamk23/new-yas-deploy
+          token: ${{ secrets.PAT_TOKEN }}
+          path: yas-deploy
+
+      - name: Setup yq
+        uses: mikefarah/yq@v4.35.2
+
+      - name: Update tags for changed services
+        run: |
+          cd yas-deploy
+          IS_TAG="${{ needs.detect-changes.outputs.is_tag }}"
+          TAG_NAME="${{ needs.detect-changes.outputs.tag_name }}"
+          
+          if [[ "$IS_TAG" == "true" ]]; then
+             ENV_FILE="overlays/staging/values.yaml"
+             services=("backoffice-bff" "backoffice" "cart" "charts" "customer" "inventory" "location" "media" "order" "payment" "payment-paypal" "product" "promotion" "rating" "recommendation" "sampledata" "search" "storefront-bff" "storefront" "tax" "webhook")
+             for svc in "${services[@]}"; do
+               yq -i ".services.${svc}.tag = \"$TAG_NAME\"" $ENV_FILE
+             done
+          else
+             ENV_FILE="overlays/dev/values.yaml"
+             if [[ "${{ needs.detect-changes.outputs.backoffice_bff }}" == "true" ]]; then yq -i ".services.backoffice-bff.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.backoffice }}" == "true" ]]; then yq -i ".services.backoffice.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.cart }}" == "true" ]]; then yq -i ".services.cart.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.charts }}" == "true" ]]; then yq -i ".services.charts.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.customer }}" == "true" ]]; then yq -i ".services.customer.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.inventory }}" == "true" ]]; then yq -i ".services.inventory.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.location }}" == "true" ]]; then yq -i ".services.location.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.media }}" == "true" ]]; then yq -i ".services.media.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.order }}" == "true" ]]; then yq -i ".services.order.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.payment }}" == "true" ]]; then yq -i ".services.payment.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.payment_paypal }}" == "true" ]]; then yq -i ".services.payment-paypal.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.product }}" == "true" ]]; then yq -i ".services.product.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.promotion }}" == "true" ]]; then yq -i ".services.promotion.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.rating }}" == "true" ]]; then yq -i ".services.rating.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.recommendation }}" == "true" ]]; then yq -i ".services.recommendation.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.sampledata }}" == "true" ]]; then yq -i ".services.sampledata.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.search }}" == "true" ]]; then yq -i ".services.search.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.storefront_bff }}" == "true" ]]; then yq -i ".services.storefront-bff.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.storefront }}" == "true" ]]; then yq -i ".services.storefront.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.tax }}" == "true" ]]; then yq -i ".services.tax.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+             if [[ "${{ needs.detect-changes.outputs.webhook }}" == "true" ]]; then yq -i ".services.webhook.tag = \"$TAG_NAME\"" $ENV_FILE; fi
+          fi
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "GitOps: Update to $TAG_NAME" || echo "No changes to commit"
+          git push
