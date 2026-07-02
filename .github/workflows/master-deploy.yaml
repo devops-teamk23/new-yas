@@ -5,6 +5,11 @@ on:
     branches: ["**"]
     tags: ["v*"]
 
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
