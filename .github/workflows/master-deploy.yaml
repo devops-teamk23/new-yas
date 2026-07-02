@@ -235,7 +235,7 @@ jobs:
 
   update-gitops:
     needs: [detect-changes, build-backoffice-bff, build-backoffice, build-cart, build-charts, build-customer, build-inventory, build-location, build-media, build-order, build-payment, build-payment-paypal, build-product, build-promotion, build-rating, build-recommendation, build-sampledata, build-search, build-storefront-bff, build-storefront, build-tax, build-webhook]
-    if: always() && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+    if: !failure() && !cancelled() && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout GitOps Repo
