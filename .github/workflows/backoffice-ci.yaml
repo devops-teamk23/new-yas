@@ -9,46 +9,6 @@ on:
         type: string
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      security-events: write
-    env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
-      ORG_REPO: devops-teamk23
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - uses: ./.github/workflows/actions
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Install dependencies
-        run: npm ci
-        working-directory: backoffice
-      - name: Build frontend
-        run: npm run build
-        working-directory: backoffice
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASS }}
-      - name: Build Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./backoffice
-          push: false
-          load: true
-          tags: docker.io/${{ secrets.DOCKER_USERNAME }}/yas-backoffice:${{ inputs.tag }}
-      - name: Push Docker image
-        run: |
-          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/yas-backoffice:${{ inputs.tag }}
-
-
   test:
     runs-on: ubuntu-latest
     permissions:
@@ -289,6 +249,7 @@ jobs:
           sarif_file: "trivy-fs-results.sarif"
           category: "backoffice-trivy-fs-scan"
 
+
   run-unit-test:
     needs: test
     runs-on: ubuntu-latest
@@ -384,4 +345,46 @@ jobs:
         with:
           name: Backoffice Coverage Report
           path: backoffice/coverage/
+
+
+  build:
+    needs: run-unit-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+    env:
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+      ORG_REPO: devops-teamk23
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: ./.github/workflows/actions
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci
+        working-directory: backoffice
+      - name: Build frontend
+        run: npm run build
+        working-directory: backoffice
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASS }}
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backoffice
+          push: false
+          load: true
+          tags: docker.io/${{ secrets.DOCKER_USERNAME }}/yas-backoffice:${{ inputs.tag }}
+      - name: Push Docker image
+        run: |
+          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/yas-backoffice:${{ inputs.tag }}
+
 
