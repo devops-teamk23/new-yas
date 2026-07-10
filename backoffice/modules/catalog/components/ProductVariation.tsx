@@ -138,10 +138,13 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
           productOptionId: productOption?.id,
           displayOrder: 1,
           displayType: 'text',
-          value: optionValues.reduce((acc, optionValue) => {
-            acc[optionValue] = '#000000';
-            return acc;
-          }, {} as Record<string, string>),
+          value: optionValues.reduce(
+            (acc, optionValue) => {
+              acc[optionValue] = '#000000';
+              return acc;
+            },
+            {} as Record<string, string>
+          ),
         };
         currentOptions.push(newProductOptionValuePost);
       }

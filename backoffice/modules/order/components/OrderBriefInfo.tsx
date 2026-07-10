@@ -61,8 +61,8 @@ const OrderBriefInfo = ({ order }: Props) => {
                         order.orderStatus == `COMPLETED`
                           ? `text-success`
                           : order.orderStatus == `PENDING`
-                          ? `text-warning`
-                          : `text-info`
+                            ? `text-warning`
+                            : `text-info`
                       }`}
                     >
                       {order.orderStatus}

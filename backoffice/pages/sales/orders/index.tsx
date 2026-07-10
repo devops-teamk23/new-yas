@@ -150,8 +150,8 @@ const Orders: NextPage = () => {
                       order.orderStatus == `COMPLETED`
                         ? `border border-success btn-sm text-success`
                         : order.orderStatus == `PENDING`
-                        ? `border border-warning btn-sm text-warning`
-                        : `border border-info btn-sm text-info`
+                          ? `border border-warning btn-sm text-warning`
+                          : `border border-info btn-sm text-info`
                     }
                   >
                     {order.orderStatus}
@@ -164,8 +164,8 @@ const Orders: NextPage = () => {
                       (order.paymentStatus == `COMPLETED`
                         ? `border border-success btn-sm text-success`
                         : order.paymentStatus == `PENDING`
-                        ? `border border-warning btn-sm text-warning`
-                        : `border border-info btn-sm text-info`)
+                          ? `border border-warning btn-sm text-warning`
+                          : `border border-info btn-sm text-info`)
                     }
                   >
                     {order.paymentStatus}
@@ -178,8 +178,8 @@ const Orders: NextPage = () => {
                       (order.deliveryStatus == `COMPLETED`
                         ? `border border-success btn-sm text-success`
                         : order.deliveryStatus == `PENDING`
-                        ? `border border-warning btn-sm text-warning`
-                        : `border border-info btn-sm text-info`)
+                          ? `border border-warning btn-sm text-warning`
+                          : `border border-info btn-sm text-info`)
                     }
                   >
                     {order.deliveryStatus}
