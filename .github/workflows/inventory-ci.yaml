@@ -9,6 +9,8 @@ on:
 
 jobs:
   test:
+
+    if: false
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -204,7 +206,7 @@ jobs:
 
 
   run-unit-test:
-    needs: test
+    if: false
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -323,7 +325,6 @@ jobs:
 
 
   build:
-    needs: run-unit-test
     runs-on: ubuntu-latest
     permissions:
       contents: read

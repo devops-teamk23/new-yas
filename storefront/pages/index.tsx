@@ -7,14 +7,16 @@ const Home: NextPage = () => {
     <div className="homepage-container">
       <div
         style={{
-          padding: '10px',
+          padding: '12px',
           textAlign: 'center',
-          backgroundColor: '#28a745',
+          background: 'linear-gradient(90deg, #4f46e5, #ec4899)',
           color: 'white',
           fontWeight: 'bold',
+          fontSize: '16px',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
         }}
       >
-        Demo ArgoCD: Dev Application Successfully!
+        🚀 GitOps CI/CD Pipeline - Protected by Bitnami Sealed Secrets 🚀
       </div>
       <Banner />
 
