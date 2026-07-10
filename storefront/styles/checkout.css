@@ -243,9 +243,7 @@
 .address-card {
   cursor: pointer;
   color: #27272a;
-  box-shadow:
-    rgba(50, 50, 93, 0.25) 0 2px 5px -1px,
-    rgba(0, 0, 0, 0.3) 0 1px 3px -1px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0 2px 5px -1px, rgba(0, 0, 0, 0.3) 0 1px 3px -1px;
   background-color: #fff;
   border-radius: 3px;
   flex-direction: column;
@@ -256,9 +254,7 @@
   transition: all 0.15s ease-in-out;
   border-color: #ee4d2d;
   transform: translateY(-2px);
-  box-shadow:
-    rgba(50, 50, 93, 0.25) 0 13px 27px -5px,
-    rgba(0, 0, 0, 0.3) 0 8px 16px -8px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0 13px 27px -5px, rgba(0, 0, 0, 0.3) 0 8px 16px -8px;
 }
 
 .address-buttons-bottom {
@@ -293,9 +289,7 @@
   text-decoration: none;
   border: 1px solid #ced4da;
   border-radius: 10px;
-  transition:
-    color 0.15s ease,
-    border-color 0.15s ease;
+  transition: color 0.15s ease, border-color 0.15s ease;
 }
 
 .process-payment-btn {
@@ -309,9 +303,7 @@
   padding: 14px 32px;
   border-radius: 25px;
   cursor: pointer;
-  transition:
-    background-color 0.3s ease,
-    transform 0.2s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
