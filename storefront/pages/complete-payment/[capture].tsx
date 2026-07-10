@@ -92,7 +92,8 @@ const CompletePayment = () => {
                 </div>
                 <div hidden={!isPaymentUnsuccessful} className="payment-fail">
                   <h1>
-                    <i className="bi bi-exclamation-triangle"></i> YOUR ORDER PURCHASE UNSUCCESSFUL{' '}
+                    <i className="bi bi-exclamation-triangle"></i> YOUR ORDER PURCHASE
+                    UNSUCCESSFUL{' '}
                   </h1>
                 </div>
               </div>
