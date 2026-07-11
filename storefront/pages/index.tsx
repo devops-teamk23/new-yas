@@ -16,7 +16,7 @@ const Home: NextPage = () => {
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
         }}
       >
-        🚀 GitOps CI/CD Pipeline - Protected by Bitnami Sealed Secrets 🚀
+        🚀 Demo Changing 🚀
       </div>
       <Banner />
 
