@@ -1,4 +1,4 @@
-﻿name: product service ci
+name: product service ci
 
 on:
   workflow_call:
@@ -9,8 +9,6 @@ on:
 
 jobs:
   test:
-
-    if: false
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -201,7 +199,7 @@ jobs:
 
 
   run-unit-test:
-    if: false
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -312,6 +310,7 @@ jobs:
 
 
   build:
+    needs: run-unit-test
     runs-on: ubuntu-latest
     permissions:
       contents: read
